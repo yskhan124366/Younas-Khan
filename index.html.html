@@ -156,6 +156,30 @@
   }
   @keyframes vspin{ to{ transform:rotate(360deg); } }
 
+  /* IMAGE LIGHTBOX (opened by clicking the work-arrow on a project card) */
+  .work-card{ cursor:pointer; }
+  .image-modal{
+    display:none; position:fixed; inset:0; z-index:200;
+    background:rgba(28,26,20,0.85); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .image-modal.open{ display:flex; }
+  .image-modal-inner{
+    width:100%; max-width:720px; background:var(--cream-2); border-radius:18px; overflow:hidden;
+    position:relative; box-shadow:0 40px 70px -20px rgba(0,0,0,0.6);
+  }
+  .image-modal-inner img{ width:100%; display:block; max-height:80vh; object-fit:contain; background:var(--cream); }
+  .image-modal-close{
+    position:absolute; top:-46px; right:0; width:38px; height:38px; border-radius:50%;
+    background:var(--cream-2); border:none; color:var(--forest); font-size:18px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    -webkit-appearance:none; appearance:none;
+  }
+  .image-modal-title{
+    position:absolute; top:-46px; left:0; color:var(--cream-2); font-family:'Fraunces',serif;
+    font-size:16px; font-weight:600; max-width:70%;
+  }
+
   /* HEADER */
   header{
     position:sticky; top:0; z-index:50;
@@ -456,7 +480,7 @@
       <a href="#skills" onclick="closeMenu()">Skills</a>
       <a href="#work" onclick="closeMenu()">Work</a>
       <a href="#video-gallery" onclick="closeMenu()">Videos</a>
-      <a href="#testimonials" onclick="closeMenu()">Testimonials</a>
+      <a href="#testimonials" onclick="closeMenu()">Approach</a>
       <a href="#contact" onclick="closeMenu()">Contact</a>
     </nav>
     <div class="nav-right" style="display:flex; align-items:center; gap:10px;">
@@ -774,6 +798,14 @@
   </div>
 </div>
 
+<div class="image-modal" id="imageModal">
+  <div class="image-modal-inner">
+    <div class="image-modal-title" id="imageModalTitle"></div>
+    <button class="image-modal-close" type="button" onclick="closeImageModal()" aria-label="Close image">✕</button>
+    <img id="imageModalPic" src="" alt="">
+  </div>
+</div>
+
 <section class="process-band">
   <div class="wrap">
     <div class="process-head">
@@ -855,7 +887,7 @@
         <div class="contact-card">
           <h3>Good to know</h3>
           <ul class="contact-list">
-            <li><span class="ic">📞</span> 0567261940</li>
+            <li><span class="ic">📞</span> +971 56 726 1940</li>
             <li><span class="ic">🌍</span> Available worldwide, remote-first</li>
             <li><span class="ic">🕗</span> Replies within 1–2 business days</li>
           </ul>
@@ -954,6 +986,37 @@
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && videoModal.classList.contains('open')) closeVideoModal();
+  });
+
+  // IMAGE LIGHTBOX — clicking any project card (including the arrow) opens a full-size view
+  const imageModal = document.getElementById('imageModal');
+  const imageModalPic = document.getElementById('imageModalPic');
+  const imageModalTitle = document.getElementById('imageModalTitle');
+
+  function openImageModal(src, title, alt){
+    imageModalPic.src = src;
+    imageModalPic.alt = alt || title || '';
+    imageModalTitle.textContent = title || '';
+    imageModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeImageModal(){
+    imageModal.classList.remove('open');
+    imageModalPic.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.work-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const img = card.querySelector('.work-thumb img');
+      const heading = card.querySelector('.work-body h3');
+      if (img) openImageModal(img.src, heading ? heading.textContent : '', img.alt);
+    });
+  });
+  imageModal.addEventListener('click', (e) => {
+    if (e.target === imageModal) closeImageModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && imageModal.classList.contains('open')) closeImageModal();
   });
 
   // Active nav link on scroll
